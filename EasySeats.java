@@ -295,9 +295,13 @@ public class EasySeats extends javax.swing.JFrame
         addButtonSeatOne.setVisible(true);
         removeButtonSeatOne.setVisible(true);
         
-        //For now, read from a text file.  Don't read SystemD results directly
-        //populateSeatZeroStatusSystemD();
-        populateSeatZeroStatusTextFile();
+        //Read from a text file instead of from systemd directly
+        //populateSeatZeroStatusTextFile();
+        
+        //Read directly from systemd
+        populateSeatZeroStatusSystemD();
+        
+        //TODO:  Support both text file and systemd output depending on version
         
         //Create arrays
         easySeats = new String[seatZeroStatus.size() / 2][4];
