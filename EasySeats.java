@@ -1,4 +1,4 @@
-package Seats;
+package EasySeats;
 
 import java.util.ArrayList;
 import javax.swing.DefaultListModel;
@@ -178,7 +178,7 @@ public class EasySeats extends javax.swing.JFrame
             }
         });
 
-        jComboBox2.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Easyseat 1", "Easyseat 2" }));
+        jComboBox2.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Easyseat 1", "Easyseat 2", "Easyseat 3", "Easyseat 4" }));
         jComboBox2.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jComboBox2ActionPerformed(evt);
@@ -303,6 +303,8 @@ public class EasySeats extends javax.swing.JFrame
         
         //TODO:  Support both text file and systemd output depending on version
         
+        //Test message
+        
         //Create arrays
         easySeats = new String[seatZeroStatus.size() / 2][4];
         
@@ -400,20 +402,24 @@ public class EasySeats extends javax.swing.JFrame
     }//GEN-LAST:event_removeButtonSeatOneActionPerformed
 
     private void addButtonSeatOneActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addButtonSeatOneActionPerformed
-        int selIndex = jList1.getSelectedIndex();
+        int listIndex = jList1.getSelectedIndex();
         String itemName = jList1.getSelectedValue().toString();
+        
+        String combItem = jComboBox2.getSelectedItem().toString();
+        int comboItemLen = combItem.length();
+        int selIndex = Integer.parseInt(combItem.substring(comboItemLen - 1, comboItemLen));
 
-        if (selIndex < 0)
+        if (listIndex < 0)
         {
             return;
         }
 
         String temp[] = returnDevice(itemName);
 
-        allDevicesModel.removeElementAt(selIndex);
+        allDevicesModel.removeElementAt(listIndex);
 
         //This value will always be zero unless the stored index is accessed instead of the jlist index.
-        changeDevSeatBit(Integer.parseInt(temp[2]), 1);
+        changeDevSeatBit(Integer.parseInt(temp[2]), selIndex);
 
         //Seat model has to be emptied, otherwise repeat values will be added.
         seatOneModel.removeAllElements();
@@ -423,10 +429,9 @@ public class EasySeats extends javax.swing.JFrame
             int bitHolder = Integer.parseInt(easySeats[i][3]);
 
             //Any time the bitholder value equals 1, add it to the model.
-            if (bitHolder == 1)
+            if (bitHolder == selIndex)
             {
                 seatOneModel.addElement(easySeats[i][1]);
-
             }
         }
 
@@ -462,7 +467,6 @@ public class EasySeats extends javax.swing.JFrame
         
         try
         {
-            
             String[] seatAttach = {"/bin/sh", "-c", "loginctl attach " + seatName + " " + devAddress};
             Process proc = rt.exec(seatAttach);
             
@@ -695,7 +699,7 @@ public class EasySeats extends javax.swing.JFrame
         
         String[] systemDResults = {"/bin/sh", "-c", "systemctl --version"};
         
-        //TODO:  If SystemD version is lower than 236, look for txt file.
+        //TODO:  If systemd version is lower than 236, look for txt file.
         //The ellipsis fix is supposed to be included in 236.
     }
     
