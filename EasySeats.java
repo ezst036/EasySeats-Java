@@ -3,10 +3,20 @@ package EasySeats;
 import java.util.ArrayList;
 import javax.swing.DefaultListModel;
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileReader;
 import java.io.InputStreamReader;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.io.UnsupportedEncodingException;
+import java.io.Writer;
+import java.nio.file.AccessDeniedException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.swing.JOptionPane;
 
 /*
  * EasySeats GUI is an attempt to streamline and make the process of multi-seat
@@ -107,6 +117,7 @@ public class EasySeats extends javax.swing.JFrame
         MenuExit = new javax.swing.JMenuItem();
         jMenu2 = new javax.swing.JMenu();
         MenuClearAllSeats = new javax.swing.JMenuItem();
+        MenuShutdownControl = new javax.swing.JMenuItem();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -271,6 +282,14 @@ public class EasySeats extends javax.swing.JFrame
         });
         jMenu2.add(MenuClearAllSeats);
 
+        MenuShutdownControl.setText("Reboot control");
+        MenuShutdownControl.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                MenuShutdownControlActionPerformed(evt);
+            }
+        });
+        jMenu2.add(MenuShutdownControl);
+
         jMenuBar1.add(jMenu2);
 
         setJMenuBar(jMenuBar1);
@@ -301,13 +320,6 @@ public class EasySeats extends javax.swing.JFrame
         easySeats = new String[seatZeroStatus.size() / 2][4];
         
         populateDevArray();
-        
-        System.out.println("The sound card is: ");
-        
-        //More testing
-        String soundCardZero[] = returnDevice("sound:card0");
-        
-        System.out.println(soundCardZero[0]);
         
         allDevicesModel.removeAllElements();
         
@@ -435,7 +447,6 @@ public class EasySeats extends javax.swing.JFrame
         
         try
         {
-            
             String[] clearAllSeats = {"/bin/sh", "-c", "loginctl flush-devices"};
             Process proc = rt.exec(clearAllSeats);
             
@@ -450,6 +461,52 @@ public class EasySeats extends javax.swing.JFrame
             ex.printStackTrace();
         }
     }                                                 
+
+    private void MenuShutdownControlActionPerformed(java.awt.event.ActionEvent evt) {                                                    
+        //Create the control for a group shutdown and reboot policy
+        
+        File thisIsTheFile = new File("/etc/polkit-1/rules.d/20-prevent-shutdown.rules");
+        
+        if(!thisIsTheFile.exists())
+        {
+            try
+            {
+                FileOutputStream OutStr;    
+                OutStr = new FileOutputStream(thisIsTheFile);
+            
+                OutputStreamWriter outWrite = new OutputStreamWriter(OutStr);
+
+                Writer writer = new BufferedWriter(outWrite);
+                writer.write("polkit.addRule(function(action, subject) {\n");
+                writer.write("    if ((action.id == \"org.freedesktop.login1.power-off-multiple-sessions\" ||\n");
+                writer.write("         action.id == \"org.freedesktop.login1.reboot-multiple-sessions\") &&\n");
+                writer.write("         subject.isInGroup(\"shutdown\")) {\n");
+                writer.write("            return subject.active ? polkit.Result.AUTH_ADMIN : polkit.Result.NO;\n");
+                writer.write("    }\n");
+                writer.write("});");
+                writer.close();
+            }
+            catch (FileNotFoundException ex) //FileNotFoundException
+            {
+                JOptionPane.showMessageDialog(rootPane,
+                        "Insufficient permissions to create '20-prevent-shutdown.rules' in /etc/polkit-1/rules.d.");
+                ex.printStackTrace();
+            }
+            catch (UnsupportedEncodingException ex) //UnsupportedEncodingException
+            {
+                ex.printStackTrace();
+            }
+            catch (IOException ex) //IOException
+            {
+                ex.printStackTrace();
+            }
+        }
+        else
+        {
+            JOptionPane.showMessageDialog(rootPane,
+                    thisIsTheFile + " already exists.");
+        }
+    }                                                   
     
     public void insertItemWithLoginCTL(String devAddress, int seatNum)
     {
@@ -758,6 +815,7 @@ public class EasySeats extends javax.swing.JFrame
     // Variables declaration - do not modify                     
     private javax.swing.JMenuItem MenuClearAllSeats;
     private javax.swing.JMenuItem MenuExit;
+    private javax.swing.JMenuItem MenuShutdownControl;
     private javax.swing.JButton addButtonSeatOne;
     private javax.swing.JButton assignButton;
     private javax.swing.Box.Filler filler1;
