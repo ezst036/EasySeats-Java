@@ -11,11 +11,9 @@ import javax.swing.JOptionPane;
 
 public class sdAccess
 {
-    public String[] populateSeatZeroStatussystemd()
+    public String[] populateSeatStatussystemd(String seatName)
     {
-        String seatNum = "0";
-        
-        String[] seatZeroLoginctl = {"/bin/sh", "-c", "loginctl seat-status seat" + seatNum};
+        String[] seatZeroLoginctl = {"/bin/sh", "-c", "loginctl seat-status " + seatName};
         
         ArrayList<String> sdResults = new ArrayList<>();
         
@@ -50,17 +48,25 @@ public class sdAccess
         return returnArray;
     }
     
-    public void loginctlSingleSeat(String devAddress, int seatNum, String enjoin)
+    public void loginctlSingleSeat(String devAddress, String seatName, String enjoin)
     {
+        if(devAddress.equals(null) || devAddress.equals(""))
+        {
+            System.out.println("No devices available to move to another seat.");
+            System.out.println("");
+            System.out.println("To create a seat, always remember to start with a video card.");
+            System.out.println("For a USB seat device, assign the master USB node.");
+            System.out.println("");
+            return;
+        }
+
         //Method can attach or terminate seats
-        String seatName = "seat" + Integer.toString(seatNum);
-        
         Runtime rt = Runtime.getRuntime();
+        String[] seatAttach = {"/bin/sh", "-c", "loginctl " + enjoin + " "
+                    + seatName + " " + devAddress};
         
         try
         {
-            String[] seatAttach = {"/bin/sh", "-c", "loginctl " + enjoin + " "
-                    + seatName + " " + devAddress};
             Process proc = rt.exec(seatAttach);
             
             System.out.println("The command that was sent was: " + seatAttach[2]);
