@@ -408,8 +408,7 @@ public class EasySeats extends javax.swing.JFrame
                 for (Object holder : seatOneStatus)
                 {
                     //Add loop counter, device counter, and string holder
-                    devCounter = populateDevArray(loopCntr, devCounter, i, holder.toString());          
-
+                    devCounter = populateDevArray(loopCntr, devCounter, i, holder.toString());
                     loopCntr++;
                 }
             }
@@ -428,18 +427,28 @@ public class EasySeats extends javax.swing.JFrame
         //Seat model has to be emptied, otherwise repeat values will be added.
         allDevicesModel.removeAllElements();
         seatOneModel.removeAllElements();
-                
-        //Adds dev names only to the first control element
-        for(int i = 0; i < easySeatRows.size(); i++)
+        
+        try
         {
-            if (Integer.parseInt(easySeatRows.get(i)[3]) == 0)
+            //Adds dev names only to the first control element
+            for(int i = 0; i < easySeatRows.size(); i++)
             {
-                allDevicesModel.addElement(easySeatRows.get(i)[1]);
+                if (Integer.parseInt(easySeatRows.get(i)[3]) == 0)
+                {
+                    allDevicesModel.addElement(easySeatRows.get(i)[1]);
+                }
+                else if (Integer.parseInt(easySeatRows.get(i)[3]) == listSel)
+                {
+                    seatOneModel.addElement(easySeatRows.get(i)[1]);
+                }
             }
-            else if (Integer.parseInt(easySeatRows.get(i)[3]) == listSel)
-            {
-                seatOneModel.addElement(easySeatRows.get(i)[1]);
-            }
+        }
+        catch (NumberFormatException ex)
+        {
+            clearAll();
+            statusResult.append("Java version error, found " +
+                    System.getProperty("java.version") + ".  Please report.");
+            return;
         }
         
         if (setSubSeat == true)
@@ -457,6 +466,11 @@ public class EasySeats extends javax.swing.JFrame
     }                                        
         
     private void clearButtonActionPerformed(java.awt.event.ActionEvent evt) {                                            
+        clearAll();
+    }                                           
+    
+    public void clearAll()
+    {
         allDevicesModel.removeAllElements();
         seatOneModel.removeAllElements();
         jList2.setModel(seatOneModel);
@@ -476,8 +490,8 @@ public class EasySeats extends javax.swing.JFrame
         
         //Enable the get devices function
         haveDevices = false;
-    }                                           
-                
+    }
+    
     public void resetDrop()
     {
         //How many seats does systemd report
@@ -790,8 +804,15 @@ public class EasySeats extends javax.swing.JFrame
         int counter = 0;
         int loopCntr = 0;
         
-        if (position != 0)
+        String javaVer = System.getProperty("java.version");
+        
+        System.out.println("\nJava Version: " + javaVer);
+        System.out.println("Java Runtime Version: " + System.getProperty("java.runtime.version"));
+        
+        if (javaVer.compareTo("1.9") == -1 && position != 0)
         {
+            System.out.println("\nJava Version less than 1.9.");
+            
             //The counter should begin with one extra
             loopCntr++;
         }
@@ -813,7 +834,7 @@ public class EasySeats extends javax.swing.JFrame
 
                 counter++;
             }
-            
+
             loopCntr++;
         }
     }
