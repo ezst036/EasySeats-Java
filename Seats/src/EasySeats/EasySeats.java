@@ -346,19 +346,6 @@ public class EasySeats extends javax.swing.JFrame
             return;
         }
         
-        int sysdVer = parssystemdVer();
-        
-        if(sysdVer <= 236)
-        {
-            addButtonSeatOne.setVisible(false);
-            removeButtonSeatOne.setVisible(false);
-            statusResult.setText(null);
-            statusResult.append("Your systemd version is too low.   Please upgrade.\n");
-            statusResult.append("The current installed version of systemd on this system is\n");
-            statusResult.append(sysdVer + ".  Version 236 or higher is required.\n");
-            return;
-        }
-        
         String[] theseAreTheSeats = systemd.howManySeats();
         
         //Out of order test array
@@ -915,12 +902,6 @@ public class EasySeats extends javax.swing.JFrame
         String holdToSubstr = holdToStr.substring(cutHolder, heldStrLen);
         
         return holdToSubstr;
-    }
-    
-    public int parssystemdVer()
-    {
-        int sdVer = systemd.getsystemdVer();        
-        return sdVer;
     }
 
     // Variables declaration - do not modify                     

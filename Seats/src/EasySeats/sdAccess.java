@@ -115,50 +115,7 @@ public class sdAccess
             }
         }
     }
-    
-    public int getsystemdVer()
-    {
-        ArrayList systemdStatus = new ArrayList();
         
-        try
-        {
-            Runtime rt = Runtime.getRuntime();
-            
-            //Get All Devices from the command line
-            String[] systemdResults = {"/bin/sh", "-c", "systemctl --version"};
-            Process proc = rt.exec(systemdResults);
-            
-            BufferedReader results = new BufferedReader(new InputStreamReader(proc.getInputStream(), "UTF8"));
-            
-            proc.waitFor();
-            
-            //results holder variable
-            String line;
-            
-            //Read each line, put into arraylist
-            while ((line = results.readLine()) != null)
-            {
-                systemdStatus.add(line);
-                System.out.println(line);
-            }
-        }
-        catch (IOException ex)
-        {
-            ex.printStackTrace();
-        }
-        catch (InterruptedException ex)
-        {
-            ex.printStackTrace();
-        }
-        
-        //Get the version number, convert it to string, then remove all non-numeric data
-        String digits = systemdStatus.get(0).toString().replaceAll("[^0-9]", "");
-        
-        int sdVer = Integer.parseInt(digits);
-        
-        return sdVer;
-    }
-    
     public String[] howManySeats()
     {
         String[] listSeats = {"/bin/sh", "-c", "loginctl list-seats"};
